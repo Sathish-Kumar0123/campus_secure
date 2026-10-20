@@ -1,0 +1,52 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-secondary mb-1">Student portal</p>
+        <h1 class="h2">College events</h1>
+        <p class="text-secondary mb-0">
+            Events published by your college staff.
+        </p>
+    </div>
+
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+        Back to dashboard
+    </a>
+</div>
+
+<div class="row g-3">
+    {% for event in events %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card p-4 h-100">
+                <h5>{{ event.title }}</h5>
+
+                <p class="text-secondary mb-2">
+                    Date: {{ event.event_date }}
+                </p>
+
+                <p class="mb-0">
+                    <strong>Subject:</strong>
+                    {{ event.subject.name }}
+                </p>
+
+                <div class="mt-3">
+                    <a href="{% url 'submit_event_report' %}"
+                       class="btn btn-outline-primary btn-sm">
+                        Submit event report
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="card p-4">
+                <p class="text-secondary mb-0">
+                    No events have been published yet.
+                </p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

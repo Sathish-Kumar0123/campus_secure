@@ -1,0 +1,169 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <p class="text-secondary mb-1">Your workspace</p>
+        <h1 class="h2">
+            Hello, {{ user.first_name|default:user.username }}
+        </h1>
+    </div>
+    <span class="badge text-bg-primary">{{ user.get_role_display }}</span>
+</div>
+
+{% if role == "STUDENT" %}
+
+    {% if student %}
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 h-100">
+                    <div class="text-secondary">Roll number</div>
+                    <div class="fs-4 fw-bold">{{ student.roll_number }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card p-3 h-100">
+                    <div class="text-secondary">Class attendance</div>
+                    <div class="fs-4 fw-bold">{{ attendance_pct }}%</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card p-3 h-100">
+                    <div class="text-secondary">Recorded marks</div>
+                    <div class="fs-4 fw-bold">{{ marks|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <a class="card p-4 text-decoration-none text-dark h-100"
+                   href="{% url 'marks' %}">
+                    <h5>My marks</h5>
+                    <p class="text-secondary mb-0">
+                        View your own subject scores.
+                    </p>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a class="card p-4 text-decoration-none text-dark h-100"
+                   href="{% url 'attendance' %}">
+                    <h5>My attendance</h5>
+                    <p class="text-secondary mb-0">
+                        Review your attendance records.
+                    </p>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a class="card p-4 text-decoration-none text-dark h-100"
+                   href="{% url 'student_events' %}">
+                    <h5>College events</h5>
+                    <p class="text-secondary mb-0">
+                        View events published by college staff.
+                    </p>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a class="card p-4 text-decoration-none text-dark h-100"
+                   href="{% url 'submit_event_report' %}">
+                    <h5>Event report</h5>
+                    <p class="text-secondary mb-0">
+                        Submit your report for roster verification.
+                    </p>
+                </a>
+            </div>
+        </div>
+
+        <div class="card p-3">
+            <h5>My recent event reports</h5>
+
+            {% for report in reports %}
+                <div class="border-bottom py-2">
+                    <strong>{{ report.event.title }}</strong>
+                    <div class="text-secondary small">
+                        {{ report.event.event_date }} · {{ report.get_status_display }}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-secondary mb-0">
+                    You have not submitted any event reports yet.
+                </p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            Your student profile is not configured. Please contact college staff.
+        </div>
+    {% endif %}
+
+{% elif role == "TEACHER" or role == "HOD" %}
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card p-3 h-100">
+                <div class="text-secondary">Students</div>
+                <div class="fs-3 fw-bold">{{ student_count }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 h-100">
+                <div class="text-secondary">Teachers</div>
+                <div class="fs-3 fw-bold">{{ teacher_count }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 h-100">
+                <div class="text-secondary">Pending event reports</div>
+                <div class="fs-3 fw-bold">{{ pending_reports|length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a class="btn btn-primary" href="{% url 'marks' %}">
+            Manage marks
+        </a>
+
+        <a class="btn btn-primary" href="{% url 'attendance' %}">
+            Manage attendance
+        </a>
+
+        <a class="btn btn-outline-primary" href="{% url 'add_student' %}">
+            Add student
+        </a>
+
+        {% if role == "HOD" %}
+            <a class="btn btn-outline-primary" href="{% url 'add_teacher' %}">
+                Add teacher
+            </a>
+        {% endif %}
+
+        <a class="btn btn-outline-primary" href="{% url 'events' %}">
+            Events and roster
+        </a>
+    </div>
+
+    <div class="card p-3">
+        <h5>Event reports awaiting review</h5>
+
+        {% for report in pending_reports %}
+            <div class="border-bottom py-2">
+                <strong>{{ report.student.roll_number }}</strong>
+                · {{ report.event.title }}
+                · {{ report.get_status_display }}
+            </div>
+        {% empty %}
+            <p class="text-secondary mb-0">No pending reports.</p>
+        {% endfor %}
+    </div>
+
+{% endif %}
+{% endblock %}
